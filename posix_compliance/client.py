@@ -18,7 +18,8 @@ posix_home = "/root/ntfs-3g-pjd-fstest/"
 posix_test_repo = "https://github.com/ffilz/ntfs-3g-pjd-fstest.git"
 
 #Install required packages for posix compliance test suite
-cmd = "yum -y install git gcc nfs-utils redhat-rpm-config python-devel krb5-devel perl-Test-Harness libacl-devel"
+cmd = "yum -y install git gcc nfs-utils redhat-rpm-config python-devel krb5-devel perl-Test-Harness libacl-devel bc"
+print cmd
 rtn_code = subprocess.call(cmd, shell=True)
 if rtn_code != 0:
     print "Failed to install packages required to run posix compliance test suite"
@@ -26,6 +27,7 @@ if rtn_code != 0:
 
 #Cloning nfs ganesha specific posix compliance test suite
 cmd = "rm -rf %s && git clone %s" % (posix_home, posix_test_repo)
+print cmd
 rtn_code = subprocess.call(cmd, shell=True)
 if rtn_code != 0:
     print "Failed to clone posix compliance test suite"
@@ -34,6 +36,7 @@ if rtn_code != 0:
 #Edit conf file to set fs="ganesha"
 conf_file = "%s/tests/conf" % posix_home
 cmd = "sed -i s/'fs=.*'/'fs=\"ganesha\"'/g %s" % conf_file
+print cmd
 rtn_code = subprocess.call(cmd, shell=True)
 if rtn_code != 0:
     print "Failed to edit conf file to set fs=\"ganesha\""
@@ -41,6 +44,7 @@ if rtn_code != 0:
 
 #Build posix compliance test suite
 cmd = "cd %s && make" % posix_home
+print cmd
 fh = open("/tmp/output_tempfile.txt","w")
 p = subprocess.Popen(cmd, shell=True, stdout=fh, stderr=subprocess.PIPE)
 pout, perr = p.communicate()
@@ -54,6 +58,7 @@ if rtn_code != 0:
 #Mount the export with nfsv3
 mountpoint = "/mnt/test_posix_mnt_nfsv3"
 cmd = "[ -d %s ] || mkdir %s && mount -t nfs -o vers=3 %s:%s %s" % (mountpoint, mountpoint, server, export, mountpoint)
+print cmd
 rtn_code = subprocess.call(cmd, shell=True)
 if rtn_code != 0:
     print "Failed to mount nfsv3 export %s:%s" % (server, export)
@@ -62,6 +67,7 @@ if rtn_code != 0:
 #Run posix compliance test suite for nfsv3
 log_file_nfsv3 = "/tmp/posix_nfsv3" + str(int(time.time())) + ".log"
 cmd = "cd %s && prove -rf %s/tests > %s" % (mountpoint, posix_home, log_file_nfsv3)
+print cmd
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 pout, perr = p.communicate()
 rtn_code_nfsv3 = p.returncode
@@ -69,6 +75,7 @@ rtn_code_nfsv3 = p.returncode
 print "posix compliance test output for nfsv3:"
 print "---------------------------------------"
 cmd = "cat %s" % log_file_nfsv3
+print cmd
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 pout_nfsv3, perr = p.communicate()
 print pout_nfsv3
@@ -76,6 +83,7 @@ print pout_nfsv3
 #Mount the export with nfsv4
 mountpoint = "/mnt/test_posix_mnt_nfsv4"
 cmd = "[ -d %s ] || mkdir %s && mount -t nfs -o vers=4 %s:%s %s" % (mountpoint, mountpoint, server, export, mountpoint)
+print cmd
 rtn_code = subprocess.call(cmd, shell=True)
 if rtn_code != 0:
     print "Failed to mount nfsv4 export %s:%s" % (server, export)
@@ -84,6 +92,7 @@ if rtn_code != 0:
 #Run posix compliance test suite for nfsv4
 log_file_nfsv4 = "/tmp/posix_nfsv4" + str(int(time.time())) + ".log"
 cmd = "cd %s && prove -rf %s/tests > %s" % (mountpoint, posix_home, log_file_nfsv4)
+print cmd
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 pout, perr = p.communicate()
 rtn_code_nfsv4 = p.returncode
@@ -91,6 +100,7 @@ rtn_code_nfsv4 = p.returncode
 print "posix compliance test output for nfsv4:"
 print "---------------------------------------"
 cmd = "cat %s" % log_file_nfsv4
+print cmd
 p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 pout_nfsv4, perr = p.communicate()
 print pout_nfsv4
